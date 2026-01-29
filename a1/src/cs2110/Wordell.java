@@ -16,6 +16,12 @@ public class Wordell {
     private static ArrayList<Character> grayChar;
     private static int[] greenChar;
     private static final Pattern PATTERN = Pattern.compile("[A-Z]");
+    private static final int GRAY = 0;
+    private static final int YELLOW = 1;
+    private static final int GREEN = 2;
+    private static final int WORD_LENGTH = 5;
+    private static final int MAXIMUM_ATTEMPTS = 6;
+    private static final int COUNT_ASCII_SYMBOL = 256;
 
     /**
      * Returns a random valid word from the "words.txt" file.
@@ -59,7 +65,7 @@ public class Wordell {
     static boolean isValidGuess(String guess) {
         assert guess != null;
 
-        if (guess.length() != 5) {
+        if (guess.length() != WORD_LENGTH) {
             System.out.println("Your guess must have 5 letters. Try again.");
             return false;
         }
@@ -89,9 +95,9 @@ public class Wordell {
 
             char colorSymbol = guess.charAt(i);
 
-            if (colors[i] == 0) {
+            if (colors[i] == GRAY) {
                 wordCollor.append(grayTile(colorSymbol));
-            } else if (colors[i] == 1) {
+            } else if (colors[i] == YELLOW) {
                 wordCollor.append(yellowTile(colorSymbol));
             } else {
                 wordCollor.append(greenTile(colorSymbol));
@@ -115,27 +121,27 @@ public class Wordell {
      */
     public static int[] getColorArray(String guess, String word) {
 
-        int[] color = new int[5];
-        int[] countLetters = new int[256];
+        int[] color = new int[WORD_LENGTH];
+        int[] countLetters = new int[COUNT_ASCII_SYMBOL];
 
         for (int i = 0; i < word.length(); i++) {
             countLetters[word.charAt(i)]++;
         }
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             if (guess.charAt(i) == word.charAt(i)) {
-                color[i] = 2;
+                color[i] = GREEN;
                 countLetters[guess.charAt(i)]--;
             }
         }
 
-        for (int k = 0; k < 5; k++) {
-            if (color[k] == 2) {
+        for (int k = 0; k < WORD_LENGTH; k++) {
+            if (color[k] == GREEN) {
                 continue;
             }
 
             if (countLetters[guess.charAt(k)] > 0) {
-                color[k] = 1;
+                color[k] = YELLOW;
                 countLetters[guess.charAt(k)]--;
             }
         }
@@ -153,7 +159,7 @@ public class Wordell {
 
         while (true) {
 
-            if (attempt > 6) {
+            if (attempt > MAXIMUM_ATTEMPTS) {
                 System.out.println("Better luck next time. The word was " + word + ".");
                 break;
             }
@@ -185,25 +191,26 @@ public class Wordell {
      */
     public static void setArrayGreenAndGrayChar(String word, int[] a) {
 
-        for (int i = 0; i < word.length(); i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
 
-            if (a[i] == 2) {
-                greenChar[i] = 2;
+            if (a[i] == GREEN) {
+                greenChar[i] = GREEN;
             }
 
-            if (a[i] == 0) {
+            if (a[i] == GRAY) {
 
                 boolean canBan = true;
+                char symbolIndexI = word.charAt(i);
 
-                for (int j = 0; j < word.length(); j++) {
-                    if (word.charAt(j) == word.charAt(i) && a[j] != 0) {
+                for (int j = 0; j < WORD_LENGTH; j++) {
+                    if (word.charAt(j) == symbolIndexI && a[j] != GRAY) {
                         canBan = false;
                         break;
                     }
                 }
 
                 if (canBan) {
-                    grayChar.add(word.charAt(i));
+                    grayChar.add(symbolIndexI);
                 }
             }
         }
@@ -218,13 +225,13 @@ public class Wordell {
      */
     public static boolean isTrueDuplicates(String word, int[] a) {
 
-        for (int i = 0; i < word.length(); i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
 
             if (grayChar.contains(word.charAt(i))) {
                 return true;
             }
 
-            if (greenChar[i] == 2 && a[i] != 2) {
+            if (greenChar[i] == GREEN && a[i] != GREEN) {
                 return true;
             }
         }
@@ -239,14 +246,14 @@ public class Wordell {
     static void playHardMode(String word, Scanner sc) {
 
         Wordell.grayChar = new ArrayList<>();
-        Wordell.greenChar = new int[5];
+        Wordell.greenChar = new int[WORD_LENGTH];
 
         int attempt = 1;
         String oldWord = "";
 
         while (true) {
 
-            if (attempt > 6) {
+            if (attempt > MAXIMUM_ATTEMPTS) {
                 System.out.println("Better luck next time. The word was " + word + ".");
                 break;
             }
